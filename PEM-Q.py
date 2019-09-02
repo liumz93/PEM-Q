@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #Author: Mengzhu
-#Date:2019.5.9
+#Date:2019.9.1
 
 """PEM-Q
 
@@ -22,7 +22,7 @@ and no primer filter can be done.
 Input file: fastq file / Output file: informative tab files
 
 Author: Mengzhu LIU
-Last Update:2019.5.9
+Last Update:2019.9.2
 
 """
 
@@ -69,7 +69,7 @@ def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=N
     print("PEM-Q Done in {}s".format(round(time()-start_time, 3)))
     
 def main():
-    args = docopt(__doc__,version='superQ 2.0')
+    args = docopt(__doc__,version='PEM-Q 2.0')
     
     kwargs = {'sample':args['<sample>'], 'cutsite':args['<cutsite>'],'genome':args['<genome>'],\
     'primer':args['<primer>'],'primer_chr':args['<primer_chr>'],'primer_start':args['<primer_start>'],\
