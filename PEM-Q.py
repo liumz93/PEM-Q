@@ -65,22 +65,22 @@ def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=N
     os.system("mkdir log")
     
     print("######## Reads alignment... ########")
-    cmd = "~/Scripts/script_mz/superCas/script/align_make.py {} {}_R1.fq.gz {}_R2.fq.gz -a CCACGCGTGCTCTACA -p {} -r {} -s {} -e {} -d {}".format(genome,basename,basename,primer,primer_chr,primer_start,primer_end,primer_strand)
+    cmd = "align_make.py {} {}_R1.fq.gz {}_R2.fq.gz -a CCACGCGTGCTCTACA -p {} -r {} -s {} -e {} -d {}".format(genome,basename,basename,primer,primer_chr,primer_start,primer_end,primer_strand)
     print(cmd)
     os.system(cmd)
     
     print("######## Barcode dedup... ########")
-    cmd = "~/Scripts/script_mz/superCas/script/rmb_dedup.py {} 17".format(basename)
+    cmd = "rmb_dedup.py {} 17".format(basename)
     print(cmd)
     os.system(cmd)
     
     print("######## Define transloc... ########")
-    cmd = "~/Scripts/script_mz/superCas/script/define_transloc.py {} {}".format(basename, cutsite)
+    cmd = "define_transloc.py {} {}".format(basename, cutsite)
     print(cmd)
     os.system(cmd)
     
     print("######## Define indels... ########")
-    cmd = "~/Scripts/script_mz/superCas/script/define_indel.py {} {}".format(basename, cutsite)
+    cmd = "define_indel.py {} {}".format(basename, cutsite)
     print(cmd)
     os.system(cmd)
     
