@@ -34,7 +34,7 @@ Options:
 -v --version            Show version.
 <genome>                reference genome(hg19/hg38/mm9/mm10).
 <sample>                sample name of input file <sample>.fq.gz.
-<cutsite>               3' end of positive strand
+<cutsite>               position of cutsite (3' break end of positive strand)
 <primer_chr>            chromosome of red primer
 <primer_start>          start of red primer
 <primer_end>            end of red primer

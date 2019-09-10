@@ -198,7 +198,7 @@ class Align_make(object):
             cmd = "mkdir bwa_align"
             os.system(cmd)
             
-            bwa_index_path = "~/database/bwa_indexes/{}/{}".format(self.genome, self.genome)
+            bwa_index_path = "/home/mengzhu/database/bwa_indexes/{}/{}".format(self.genome, self.genome)
             print("[PEM-Q] index file used "+bwa_index_path)
             print("[PEM-Q] align to genome...")
                               
@@ -206,6 +206,7 @@ class Align_make(object):
                                                  bwa_fq_file,
                                                  self.sam)
             os.system(cmd)
+            print("[PEM-Q] "+cmd)
             
             cmd = "samtools view -S -b -h bwa_align/{} > bwa_align/{} \
                    && samtools sort bwa_align/{} > bwa_align/{} \
@@ -269,7 +270,7 @@ class Align_make(object):
             cmd = "bwa mem -t 4 adapter/adapter -k 10 -L 0 -T 10 {} > bwa_align/{} 2>bwa_align/bwa_align_adapter.log".format(self.fastq_r2, 
                                                               self.adpt_sam)
             os.system(cmd)
-            
+            print("[PEM-Q] "+cmd)
             cmd = "samtools view -S -b -h bwa_align/{} > bwa_align/{} \
                    && samtools sort bwa_align/{} > bwa_align/{} \
                    && samtools index bwa_align/{}".format(self.adpt_sam, self.adpt_bam, self.adpt_bam, self.adpt_bam_sort, self.adpt_bam_sort)

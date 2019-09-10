@@ -57,7 +57,7 @@ def one_insertion(sequence=None,cutsite=None,tab_file=None,strand=None):
     
     data = pd.read_csv(tab_file,sep = '\t',index_col=False,low_memory=False)
     
-    one_insertion = open("one_insertion.txt","w")    
+    one_insertion = open("one_insertion_resect.txt","w")    
     one_insertion.write("Sequence"+"\t"+\
                         "Count"+"\n")
     
@@ -117,7 +117,7 @@ def two_insertion(sequence=None,cutsite=None,tab_file=None,strand=None):
     
     data = pd.read_csv(tab_file,sep = '\t',index_col=False,low_memory=False)
     
-    two_insertion = open("two_insertion.txt","w")    
+    two_insertion = open("two_insertion_resect.txt","w")    
     two_insertion.write("Sequence"+"\t"+\
                         "Count"+"\n")
     
