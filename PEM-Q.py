@@ -32,8 +32,14 @@ Usage:
 Options:
 -h --help               Show this screen.
 -v --version            Show version.
--p <sequence>           primer sequence.
--a <adapter>            adapter sequence.
+<genome>                reference genome(hg19/hg38/mm9/mm10).
+<sample>                sample name of input file <sample>.fq.gz.
+<cutsite>               3' end of positive strand
+<primer_chr>            chromosome of red primer
+<primer_start>          start of red primer
+<primer_end>            end of red primer
+<primer_strand>         strand of red primer
+<primer>                sequence of red primer
 
 In this script, reads will be mapped by bwa-mem, BOTH single end or 
 pair end reads are compatible. When analyzing PEM-seq data, you should 

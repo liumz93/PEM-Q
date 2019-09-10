@@ -70,27 +70,42 @@ def one_insertion(sequence=None,cutsite=None,tab_file=None,strand=None):
         for j in ['A','T','C','G']:
             pre = sequence[0:i]
             lat = sequence[i:x]
-            # alt = pre + ' ' + j +  ' ' + lat
-            alt = pre  + j  + lat
+            alt = pre + ' ' + j +  ' ' + lat
+            # alt = pre  + j  + lat
             if alt in alt_list:
                 continue
             else:
                 alt_list.append(alt)
             
-            pos_pre = int(cutsite) - (x/2-1) + i - 1
+            pos_pre = int(cutsite) - (x/2-1) + (i - 1)
             pos_lat = pos_pre+1
-    
+            
             if strand == '+':
                 com_pre = 'Bait_end'
                 com_lat = 'Prey_start'
+                if (i - 1) <= (x/2-1):
+                    condition1 = data[com_pre] == pos_pre
+                    condition2 = data[com_lat] > int(cutsite)
+                    print("left_end=="+str(pos_pre),"right_end>"+cutsite)
+                if (i - 1) > (x/2-1):
+                    condition1 = data[com_pre] <= int(cutsite)
+                    condition2 = data[com_lat] == pos_pre
+                    print("left_end<="+str(pos_pre),"right_end=="+cutsite)
+                    
             else:
                 com_lat = 'Bait_start'
                 com_pre = 'Prey_end'
-                
-            condition1 = data[com_pre] == pos_pre
-            condition2 = data[com_lat] == pos_lat
+                if (i - 1) <= (x/2-1):
+                    condition1 = data[com_pre] == pos_pre
+                    condition2 = data[com_lat] <= int(cutsite)
+                    print("left_end=="+str(pos_pre),"right_end<="+cutsite)
+                if (i - 1) > (x/2-1):
+                    condition1 = data[com_pre] <= int(cutsite)
+                    condition2 = data[com_lat] == pos_pre
+                    print("left_end<="+cutsite,"right_end=="+str(pos_pre))
+                    
             condition3 = data['Insertion'] == j
-    
+            
             datb = data[condition1][condition2][condition3]
             num = datb['Qname'].count()
             print(alt,num)
@@ -154,7 +169,7 @@ def main():
     
 
     one_insertion(**kwargs)
-    two_insertion(**kwargs)
+    # two_insertion(**kwargs)
     
 if __name__ == '__main__':
     main()
