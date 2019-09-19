@@ -70,7 +70,7 @@ class Define_transloc(object):
     def __init__(self, basename=None,cutsite=None):
         
         self.basename = basename
-        bam_sort = "barcode/" + basename + "_sti.dedup.sort.bam"
+        bam_sort = "barcode/" + basename + "_sti.filter.sort.bam"
         self.bam_sort = bam_sort
         self.cutsite = int(cutsite)
     

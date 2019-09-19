@@ -509,7 +509,7 @@ class Define_indel(object):
                 decide_deletion =  self.decide_letter_in_cutsite('D',read.cigarstring,self.cutsite,reference_start,cutoff)
                 decide_mismatch = self.mismatch_pos_of_md(md_string, reference_start, self.cutsite, cutoff)
                 
-                #extract insetion seq
+                #extract insertion seq
                 inser_seq = self.extract_insertion_from_indel(read.query_sequence, read.cigarstring, self.cutsite, reference_start, cutoff)
 
                 indel_tab.write(read.query_name+"\t"+\

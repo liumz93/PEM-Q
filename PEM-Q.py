@@ -33,21 +33,22 @@ Options:
 -h --help               Show this screen.
 -v --version            Show version.
 <genome>                reference genome(hg19/hg38/mm9/mm10).
-<sample>                sample name of input file <sample>.fq.gz.
-<cutsite>               position of cutsite (3' break end of positive strand)
-<primer_chr>            chromosome of red primer
-<primer_start>          start of red primer
-<primer_end>            end of red primer
-<primer_strand>         strand of red primer
-<primer>                sequence of red primer
+<sample>                sample name of input file(Note: your input file must look like <sample>.fq.gz).
+<cutsite>               position of cutsite(3' break end of positive strand).
+<primer_chr>            chromosome of red primer(eg:chr1).
+<primer_start>          start of red primer.
+<primer_end>            end of red primer.
+<primer_strand>         strand of red primer(+/-).
+<primer>                sequence of red primer.
 
 In this script, reads will be mapped by bwa-mem, BOTH single end or 
 pair end reads are compatible. When analyzing PEM-seq data, you should 
 also provide adapter and primer sequences, so that adapter alignment 
 and no primer filter can be done.
 
-Input file: fastq file / Output file: informative tab files
-Last Update:2019.9.2
+Input file: fastq file 
+Output file: informative tab files
+Last Update:2019.9.10
 
 """
 
@@ -75,7 +76,7 @@ def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=N
     os.system(cmd)
     
     print("######## Barcode dedup... ########")
-    cmd = "rmb_dedup.py {} 17".format(basename)
+    cmd = "rmb_dedup.py {} 17 CCACGCGTGCTCTACA".format(basename)
     print(cmd)
     os.system(cmd)
     

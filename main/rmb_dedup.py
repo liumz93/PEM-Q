@@ -26,7 +26,7 @@ Author: Mengzhu LIU
 Contact: liu.mengzhu128@gmail.com/liumz@pku.edu.cn
 
 Usage:
-    rmb_dedup   <basename>  <barcode_length>
+    rmb_dedup   <basename>  <barcode_length> <adapter>
 
 Options:
 -h --help               Show this screen.
@@ -64,7 +64,7 @@ import pandas as pd
 
 class Dedup(object):
     
-    def __init__(self, basename=None, barcode_length=None):
+    def __init__(self, basename=None, barcode_length=None, adapter=None):
         
         self.basename = basename
         self.barcode_length = int(barcode_length)
@@ -79,13 +79,25 @@ class Dedup(object):
         self.adapter = adapter
         
         # init bam file
+        fastq_check = "flash_out/" + basename + ".merge.fastq.gz"
+        adapter_sam_check = "barcode/" + basename + "_check.adpt.sam"
+        adapter_bam_check = "barcode/" + basename + "_check.adpt.bam"
+        adapter_bam_check_sort = "barcode/" + basename + "_check.adpt.sort.bam"
+        
         adapter_bam = "bwa_align/" + basename + "_sti.adpt.sort.bam"#get adapter bam file
         primer_bam = "primer/" + basename + "_sti.p.sort.bam"#get primer filter stitch bam file
         dedup_bam = "barcode/" + basename + "_sti.dedup.bam"
         dedup_bam_sort = "barcode/" + basename + "_sti.dedup.sort.bam"
         dup_bam = "barcode/" + basename + "_sti.dup.bam"
         dup_bam_sort = "barcode/" + basename + "_sti.dup.sort.bam"
+        filter_bam = "barcode/" + basename + "_sti.filter.bam"
+        filter_bam_sort = "barcode/" + basename + "_sti.filter.sort.bam"
         
+        
+        self.fastq_check = fastq_check
+        self.adapter_sam_check = adapter_sam_check
+        self.adapter_bam_check = adapter_bam_check
+        self.adapter_bam_check_sort = adapter_bam_check_sort
         
         self.adapter_bam = adapter_bam
         self.primer_bam = primer_bam
@@ -93,6 +105,11 @@ class Dedup(object):
         self.dedup_bam_sort = dedup_bam_sort
         self.dup_bam = dup_bam
         self.dup_bam_sort = dup_bam_sort
+        
+        self.filter_bam = filter_bam
+        self.filter_bam_sort = filter_bam_sort
+        
+        
         
         
         # self.outputdir = self.basename
@@ -102,7 +119,7 @@ class Dedup(object):
         if not os.path.exists(f_file):
             raise ValueError('[PEM-Q] The {} file does not exist.'.format(f_file))
     
-        
+
     def extract_barcode(self):                
             
         # only keep query with barcode length >= barcode_length-2
@@ -225,6 +242,67 @@ class Dedup(object):
         primer_bam.close()
         dup_bam.close()
         pysam.sort("-o", self.dup_bam_sort, self.dup_bam)
+    
+    def filter_multiple_adapter(self):
+        
+        chek_file = self.adapter_bam_check_sort
+        
+        if not os.path.exists(chek_file):
+            
+            if not self.fastq_check:
+                raise ValueError('merged fastq is needed for adapter check alignment.')
+            if not os.path.exists("adapter/adapter.fa"):
+                raise ValueError('adapter/adapter.fa is needed for adapter check alignment.')
+                    
+            #alignment
+            print("[PEM-Q]  align to check adapter...")
+                              
+            cmd = "bwa mem -t 8 adapter/adapter -k 5 -L 0 -T 14 {} > {} 2>barcode/bwa_align_adapter.log".format(self.fastq_check, 
+                                                              self.adapter_sam_check)
+            os.system(cmd)
+            print("[PEM-Q] "+cmd)
+            cmd = "samtools view -S -b -h {} > {} \
+                   && samtools sort {} > {} \
+                   && samtools index {}".format(self.adapter_sam_check, self.adapter_bam_check, self.adapter_bam_check, self.adapter_bam_check_sort, self.adapter_bam_check_sort)
+            print("[PEM-Q]  sort and index bam...")
+            os.system(cmd)
+        else:
+            print("[PEM-Q]  adapter check alignment file exist, jump...")  
+        
+        #keep record of multiple adapters
+        multiple_adapt = open("barcode/"+self.basename+"_multiple_adapt.txt", "w")
+        clean_adapt = open("barcode/"+self.basename+"_clean_adapt.txt", "w")
+        bam_file = pysam.AlignmentFile(self.adapter_bam_check_sort, "rb")
+        multiple_adapt_list = []
+        clean_adapt_list = []
+        for read in bam_file:
+            condition1 = any('SA' == tg[0] for tg in read.get_tags())
+            if condition1:
+                multiple_adapt_list.append(read.query_name)
+                multiple_adapt.write(read.query_name+"\n")
+            else:
+                clean_adapt_list.append(read.query_name)
+                clean_adapt.write(read.query_name+"\n")
+        
+        #remove reads with multiple adapters
+        dedup_bam_sort = pysam.AlignmentFile(self.dedup_bam_sort, 'rb')
+        filter_bam = pysam.AlignmentFile(self.filter_bam, "wb", template=dedup_bam_sort)
+        name_indexed = pysam.IndexedReads(dedup_bam_sort)
+        name_indexed.build()
+        for name in clean_adapt_list:
+                try:
+                    name_indexed.find(name)
+                except KeyError:
+                    pass
+                else:
+                    iterator = name_indexed.find(name)
+                    for x in iterator:
+                        filter_bam.write(x)
+        dedup_bam_sort.close()
+        filter_bam.close()
+        pysam.sort("-o", self.filter_bam_sort, self.filter_bam)
+        
+        return()
 
 def main():
     start_time = time()
@@ -240,6 +318,7 @@ def main():
     dedup.barcode_dedup()
     dedup.generate_dedup_bam()
     dedup.generate_dup_bam()
+    dedup.filter_multiple_adapter()
 
     print("\nrmb_dedup.py Done in {}s".format(round(time()-start_time, 3)))
     
