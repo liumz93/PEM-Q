@@ -5,30 +5,8 @@
 
 """find_MH_of_insertion
 
-    This is a pipeline to analyze PEM-seq data or data similar, help you analyze repair outcome of your DNA library.
-
-    Copyright (C) 2019  Mengzhu Liu
-
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
-
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
-    USA
-
-Author: Mengzhu LIU
-Contact: liu.mengzhu128@gmail.com/liumz@pku.edu.cn
-
 Usage:
-    find_MH_of_insertion <vector_fasta> <vector_sam> <transloc_tab>
+    find_MH_of_insertion <vector_fasta> <vector_sam> <vector_tab>
 
 Options:
 -h --help               Show this screen.
@@ -53,15 +31,14 @@ import numpy as np
 import pysam
 from Bio import SeqIO
 
-def find_mh_of_insertion(vector_fasta, vector_sam, transloc_tab):
+def find_mh_of_insertion(vector_fasta, vector_sam, vector_tab):
     
-    transloc_file = pd.read_csv(transloc_tab,sep = '\t')
+    tab_file = pd.read_csv(vector_tab,sep = '\t')
     vector_sam_file = pysam.AlignmentFile(vector_sam, 'rb')
     vector_seq = SeqIO.read(vector_fasta, "fasta").seq
     
     insertion_mh_tab = open("Inserion_mh.tab", "w")
     insertion_mh_tab.write('Qname'+"\t"+\
-                        'Sequence'+"\t"+\
                         'old_inserion'+"\t"+\
                         'real_insertion'+"\t"+\
                         'forward_mh'+"\t"+\
@@ -71,8 +48,7 @@ def find_mh_of_insertion(vector_fasta, vector_sam, transloc_tab):
 
         if read.reference_name == "vector":
             qname = read.query_name
-            qname_index = transloc_file['Qname'][transloc_file['Qname'] == qname].index[0]#get qname index in transloc_file
-            Sequence = transloc_file['Sequence'][qname_index]#get sequence
+            qname_index = tab_file['Qname'][tab_file['Qname'] == qname].index[0]#get qname index in tab_file
             
             vector_start = read.reference_start + 1 #pysam reference start from 0
             vector_end = read.reference_end
@@ -99,7 +75,7 @@ def find_mh_of_insertion(vector_fasta, vector_sam, transloc_tab):
                 num = num + 1
                 insertion = vector_seq[vector_start-1:vector_end+num]
             #get number of microhomolog
-            num = num -1
+            num = num - 1
             afterward_mh = vector_seq[vector_end:vector_end+num]
             
             real_insertion = forward_mh + old_inserion + afterward_mh
@@ -117,10 +93,10 @@ def main():
     
     args = docopt(__doc__,version='find_MH_of_insertion 1.0')
     
-    kwargs = {'vector_fasta':args['<vector_fasta>'],'vector_sam':args['<vector_sam>'],'transloc_tab':args['<transloc_tab>']}
+    kwargs = {'vector_fasta':args['<vector_fasta>'],'vector_sam':args['<vector_sam>'],'vector_tab':args['<vector_tab>']}
     print('[superCasQ] vector_fasta: ' + str(kwargs['vector_fasta']))
     print('[superCasQ] vector_sam: ' + str(kwargs['vector_sam']))
-    print('[superCasQ] transloc_tab: ' + str(kwargs['transloc_tab']))
+    print('[superCasQ] vector_tab: ' + str(kwargs['vector_tab']))
 
     find_mh_of_insertion(**kwargs)
 

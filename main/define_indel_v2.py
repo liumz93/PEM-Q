@@ -112,60 +112,53 @@ class Define_indel(object):
         
         return(inser_len)
         
-    def find_microhomo_from_indel(self,md,cigar,sequence):
-        
+    def find_microhomo_from_indel(self,n1,n2,md,cigar,sequence):
         microhomo_seq = ''
 
         #decode cigar and find max dele and extract seq after
         letter = re.findall('\D', cigar)
         number = re.findall('\d+', cigar)
         number = list(map(int, number))#convert string to int
-        
-        #find max dele and cutsite nearest dele from cigar and decide after seq position
-        dele_len = 0
-        dele_sum = 0 
-        for i in range(0,len(letter)):
-            if letter[i] == 'D':
-                if number[i] > dele_len:
+        #which D is the D cross cutsite
+        if n2 != 0:
+            #find D after seq position
+            dele_len = 0
+            dele_sum = 0 
+            for i in range(0,n1):
+                if letter[i] == 'D':
                     dele_len = number[i]
                     sum1 = sum(number[0:i]) - dele_sum
                     dele_seq_after_start = sum1 + 1 
                     dele_sum = dele_sum + sum(number[i:i+1])
-        
-        if dele_len > 0:
-            dele_seq_after_end = dele_seq_after_start + dele_len - 1
-            dele_seq_after = sequence[dele_seq_after_start-1:dele_seq_after_end]
+            if dele_len > 0:
+                dele_seq_after_end = dele_seq_after_start + dele_len - 1
+                dele_seq_after = sequence[dele_seq_after_start-1:dele_seq_after_end]
 
-            #decode md and find max dele sequence
-            md_letter = re.findall('\D', md)
-            md0 =''
-            md_sub = md0.join(md_letter)
-            md_sub_list = md_sub.split('^')
-            if md_sub_list[0] != '':
+                #decode md and find dele sequence
+                md_letter = re.findall('\D', md)
+                md0 =''
+                md_sub = md0.join(md_letter)
+                md_sub_list = md_sub.split('^')
                 md_sub_list = md_sub_list[1:]
-            md_dele_len = 0
-            for i in range(0,len(md_sub_list)):
-                if len(md_sub_list[i]) > md_dele_len:
-                    md_dele_len = len(md_sub_list[i])
-                    dele_seq = md_sub_list[i]
-                    
-            #find microhomo seq
-            micro_mark = 0
-            mark = 0 
-            for i in range(0,dele_len):
-                if dele_seq[i] != dele_seq_after[i]:
-                    mark = mark + 1
-                    micro_mark = i
-                    break
-            if mark == 0:
-                micro_mark = micro_mark + 1
-            if micro_mark > 0:
-                microhomo_seq = dele_seq[0:micro_mark]
+                #the n string is the D cross cutsite
+                dele_seq = md_sub_list[n2-1]
+                md_dele_len = md_sub_list[n2-1]
+            
+                #find microhomo seq
+                micro_mark = 0
+                mark = 0 
+                for i in range(0,dele_len):
+                    if dele_seq[i] != dele_seq_after[i]:
+                        mark = mark + 1
+                        micro_mark = i
+                        break
+                if mark == 0:
+                    micro_mark = micro_mark + 1
+                if micro_mark > 0:
+                    microhomo_seq = dele_seq[0:micro_mark]
         return(microhomo_seq)
         
-    def define_deletion_junction(self,reference_start,cigar):
-        
-        #decode cigar and find max dele and extract seq after
+    def define_deletion_junction(self,n1,reference_start,cigar):
         letter = re.findall('\D', cigar)
         number = re.findall('\d+', cigar)
         number = list(map(int, number))#convert string to int
@@ -178,24 +171,20 @@ class Define_indel(object):
                 break
                 
         define_deletion_junction = ''
-        #find max dele from cigar and decide after reference pos
-        max_dele_len = 0
+        #find dele and  decide after reference pos
         dele_sum = 0 
         inser_len = 0
-        for i in range(0,len(letter)):
+        for i in range(0,n1):
             if letter[i] == 'I':
                 inser_len = inser_len + number[i]
             if letter[i] == 'D':
-                if number[i] > max_dele_len:
-                    max_dele_len = number[i]
-                    dele_ref_after_start = sum(number[0:i+1]) - inser_len - clip_len + 1
-                    
-        if max_dele_len > 0:
-            define_deletion_junction = reference_start + dele_ref_after_start - 1
+                dele_ref_after_start = sum(number[0:i+1]) - inser_len - clip_len + 1
+        
+        define_deletion_junction = reference_start + dele_ref_after_start - 1
             
         return(define_deletion_junction)
         
-    def define_max_deletion_len(self,cigar):
+    def define_corss_deletion_len(self,n1,cigar):
         
         #decode cigar and find max dele and extract seq after
         letter = re.findall('\D', cigar)
@@ -203,13 +192,9 @@ class Define_indel(object):
         number = list(map(int, number))#convert string to int
                 
         #find max dele
-        max_dele_len = 0 
-        for i in range(0,len(letter)):
-            if letter[i] == 'D':
-                if number[i] > max_dele_len:
-                    max_dele_len = number[i]
+        dele_len = number[n1-1]
                     
-        return(max_dele_len)            
+        return(dele_len)            
         
     def decide_letter_in_cutsite(self,letter_type,cigar,cutsite,reference_start,cutoff,extract_seq_mark=''):
 
@@ -393,7 +378,7 @@ class Define_indel(object):
                 digit_list.append(i)
             elif len(i) == 1:#only one letter then sum up list and check then add 1 to the list
                 su = sum(digit_list[0:len(digit_list)])
-                condition1 = reference_start + su >= (cutsite - cutoff)
+                condition1 = reference_start + su >= cutsite
                 condition2 = reference_start + su <= (cutsite + cutoff)
                 if condition1 and condition2:
                     answer = 'Y'
@@ -411,6 +396,7 @@ class Define_indel(object):
         bam_file = pysam.AlignmentFile(self.bam_sort, 'rb')
         indel_tab = open("indel/" + self.basename + "_indel.tab", "w")
         transloc_tab = open("indel/" + self.basename + "_indel_transloc.tab", "w")
+        deletion_tab = open("indel/" + self.basename + "_deletion_transloc.tab", "w")
         insertion_tab = open("indel/" + self.basename + "_insertion_transloc.tab", "w")
         substitution_tab = open("indel/" + self.basename + "_indel_substitution.tab", "w")
         germline_tab = open("indel/" + self.basename + "_indel_germline.tab", "w")
@@ -436,6 +422,22 @@ class Define_indel(object):
                         'Microhomolog'+"\n")
         #deletion or insertion cross cutsite
         transloc_tab.write('Qname'+"\t"+\
+                            'Bait_rname'+"\t"+\
+                            'Bait_strand'+"\t"+\
+                            'Bait_start'+"\t"+\
+                            'Bait_end'+"\t"+\
+                            'Prey_rname'+"\t"+\
+                            'Prey_strand'+"\t"+\
+                            'Prey_start'+"\t"+\
+                            'Prey_end'+"\t"+\
+                            'Rname'+"\t"+\
+                            'Strand'+"\t"+\
+                            'Junction'+"\t"+\
+                            'Sequence'+"\t"+\
+                            'Insertion'+"\t"+\
+                            'Microhomolog'+"\n")
+        #deletion
+        deletion_tab.write('Qname'+"\t"+\
                             'Bait_rname'+"\t"+\
                             'Bait_strand'+"\t"+\
                             'Bait_start'+"\t"+\
@@ -484,6 +486,7 @@ class Define_indel(object):
             #condition to keep reads cross cutsite as indel reads
             condition1 = reference_start <= self.cutsite
             condition2 = read.reference_end >= self.cutsite
+            #```````1 :cross cutsite```````#
             if  condition1 and condition2:
                 if read.is_reverse: strand = '-'
                 else: strand = '+'
@@ -496,25 +499,43 @@ class Define_indel(object):
                 if any('NM' == tg[0] for tg in read.get_tags()):
                     nm_num = str(read.get_tag('NM'))
                     mismatch_num = int(nm_num) - int(delelen) - int(inserlen)
-                #print microhomo sequence
-                microhomo = self.find_microhomo_from_indel(md_string,read.cigarstring,read.query_sequence)
-                #deletion_junction
-                dele_junc_end = self.define_deletion_junction(reference_start,read.cigarstring)
-                if dele_junc_end == '':
-                    dele_junc_start = ''
-                else:
-                    max_delelen = self.define_max_deletion_len(read.cigarstring)
-                    dele_junc_start = int(dele_junc_end) - int(max_delelen) - 1
-                
                 #classify indel
                 cutoff = 1
                 decide_insertion = self.decide_letter_in_cutsite('I',read.cigarstring,self.cutsite,reference_start,cutoff)
-                decide_deletion =  self.decide_letter_in_cutsite('D',read.cigarstring,self.cutsite,reference_start,cutoff)
                 decide_mismatch = self.mismatch_pos_of_md(md_string, reference_start, self.cutsite, cutoff)
-                
+                decide_deletion =  self.decide_letter_in_cutsite('D',read.cigarstring,self.cutsite,reference_start,cutoff)
+                #print microhomo sequence
+                microhomo = ''
+                #````````2:1: have deletion cross cutsite```````#
+                #find dele cross cutsite from cigar 
+                if decide_deletion == 'Y':
+                    i = self.decide_letter_in_cutsite('D',read.cigarstring,self.cutsite,reference_start,cutoff,'Deletion')
+                    #which letter is the D cross cutsite
+                    n1 = i + 1
+                    #which D is the D cross cutsite
+                    letter = re.findall('\D', read.cigarstring)
+                    number = re.findall('\d+', read.cigarstring)
+                    number = list(map(int, number))
+                    n2 = 0 
+                    for j in letter[0:i+1]:
+                        if j == 'D':
+                            n2 = n2 + 1
+                    microhomo = self.find_microhomo_from_indel(n1,n2,md_string,read.cigarstring,read.query_sequence)
+                    #deletion_junction
+                    dele_junc_end = self.define_deletion_junction(n1,reference_start,read.cigarstring)
+                    if dele_junc_end == '':
+                        dele_junc_start = ''
+                    else:
+                        dele_len = self.define_corss_deletion_len(n1,read.cigarstring)
+                        dele_junc_start = int(dele_junc_end) - int(dele_len) - 1
+                #````````````2:2: don't have deletion cross cutsite``````#
+                #decide_deletion == 'N'
+                else:
+                    dele_junc_start = ''
+                    dele_junc_end = ''
                 #extract insertion seq
                 inser_seq = self.extract_insertion_from_indel(read.query_sequence, read.cigarstring, self.cutsite, reference_start, cutoff)
-
+                ###. all class 1 reads output. ###
                 indel_tab.write(read.query_name+"\t"+\
                                 str(reference_start)+"\t"+\
                                 str(read.reference_end)+"\t"+\
@@ -534,7 +555,6 @@ class Define_indel(object):
                                 str(inser_seq)+"\t"+\
                                 str(microhomo)+"\n")
                 
-
                 # generate transloc tab from indel info
                 qname = read.query_name
                 rname = read.reference_name
@@ -560,6 +580,21 @@ class Define_indel(object):
                         prey_end = read.reference_end
                         junction = prey_start
                     transloc_tab.write(qname+"\t"+\
+                                        str(bait_rname)+"\t"+\
+                                        str(bait_strand)+"\t"+\
+                                        str(bait_start)+"\t"+\
+                                        str(bait_end)+"\t"+\
+                                        prey_rname+"\t"+\
+                                        prey_strand+"\t"+\
+                                        str(prey_start)+"\t"+\
+                                        str(prey_end)+"\t"+\
+                                        rname+"\t"+\
+                                        prey_strand+"\t"+\
+                                        str(junction)+"\t"+\
+                                        sequence+"\t"+\
+                                        str(insertion)+"\t"+\
+                                        str(microhomolog)+"\n")
+                    deletion_tab.write(qname+"\t"+\
                                         str(bait_rname)+"\t"+\
                                         str(bait_strand)+"\t"+\
                                         str(bait_start)+"\t"+\
@@ -642,15 +677,20 @@ class Define_indel(object):
 
         bam_file.close()
         indel_tab.close()
+        deletion_tab.close()
+        insertion_tab.close()
         transloc_tab.close()
         substitution_tab.close()
         germline_tab.close()
         
         # merge two transloc file
         transloc = pd.read_table("transloc/" + self.basename + "_transloc.tab",sep = '\t')
+        print(transloc['Qname'].count())
         indel_transloc = pd.read_table("indel/" + self.basename + "_indel_transloc.tab",sep = '\t')
+        print(indel_transloc['Qname'].count())
         transloc = transloc.append([indel_transloc])
         transloc.to_csv(self.basename + "_transloc_all.tab", header = True, sep = '\t', index=False)
+        print(transloc['Qname'].count())
 
     # def generate_other_tab(self):
 
@@ -672,9 +712,6 @@ class Define_indel(object):
     #                                                                                                                     'Deletion_end',
     #                                                                                                                     'Insertion_seq',
     #                                                                                                                     'Microhomolog'])
-
-                
-            
 
 def main():
     

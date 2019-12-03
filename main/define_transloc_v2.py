@@ -238,7 +238,7 @@ class Define_transloc(object):
             
             reference_start = read.reference_start + 1
             reference_end = read.reference_end
-            value = 10 
+            value = 0 
             if read.is_reverse:
                 cutoff = self.cutsite - value
                 read_strand = '-'

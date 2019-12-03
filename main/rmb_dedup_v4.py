@@ -173,75 +173,75 @@ class Dedup(object):
         # data.to_csv("barcode/"+self.basename+"_barcode_uniq.txt", header = True, sep = '\t', index=False,
         #    columns = [u'Qname',u'Barcode',u'Freq',u'Length'])
            
-    def generate_dedup_bam(self):
+    # def generate_dedup_bam(self):
+    #
+    #     # get uniq qname list
+    #     data = pd.read_csv("barcode/"+self.basename+"_barcode_uniq.txt",sep = '\t',names = [u'Qname',u'Barcode',u'Freq',u'Length'],low_memory=False)
+    #     uniq_qname_list = data['Qname'].tolist()
+    #
+    #     #generate dedup bam
+    #     primer_bam = pysam.AlignmentFile(self.primer_bam, 'rb')
+    #     dedup_bam = pysam.AlignmentFile(self.dedup_bam, "wb", template=primer_bam)
+    #
+    #     # #too slow
+    #     # for read in primer_bam:
+    #     #     # print(read.query_name)
+    #     #     if read.query_name in uniq_qname_list:
+    #     #         dedup_bam.write(read)
+    #     # primer_bam.close()
+    #     # dedup_bam.close()
+    #     # pysam.sort("-o", self.dedup_bam_sort, self.dedup_bam)
+    #
+    #     #index bam name by pysam to generate dedup bam
+    #     name_indexed = pysam.IndexedReads(primer_bam)
+    #     name_indexed.build()
+    #     for name in uniq_qname_list:
+    #             try:
+    #                 name_indexed.find(name)
+    #             except KeyError:
+    #                 pass
+    #             else:
+    #                 iterator = name_indexed.find(name)
+    #                 for x in iterator:
+    #                     dedup_bam.write(x)
+    #     primer_bam.close()
+    #     dedup_bam.close()
+    #     pysam.sort("-o", self.dedup_bam_sort, self.dedup_bam)
         
-        # get uniq qname list
-        data = pd.read_csv("barcode/"+self.basename+"_barcode_uniq.txt",sep = '\t',names = [u'Qname',u'Barcode',u'Freq',u'Length'],low_memory=False)
-        uniq_qname_list = data['Qname'].tolist()
-        
-        #generate dedup bam
-        primer_bam = pysam.AlignmentFile(self.primer_bam, 'rb')
-        dedup_bam = pysam.AlignmentFile(self.dedup_bam, "wb", template=primer_bam)
-        
-        # #too slow
-        # for read in primer_bam:
-        #     # print(read.query_name)
-        #     if read.query_name in uniq_qname_list:
-        #         dedup_bam.write(read)
-        # primer_bam.close()
-        # dedup_bam.close()
-        # pysam.sort("-o", self.dedup_bam_sort, self.dedup_bam)
-        
-        #index bam name by pysam to generate dedup bam
-        name_indexed = pysam.IndexedReads(primer_bam)
-        name_indexed.build()
-        for name in uniq_qname_list:
-            try:
-                name_indexed.find(name)
-            except KeyError:
-                pass
-            else:
-                iterator = name_indexed.find(name)
-                for x in iterator:
-                    dedup_bam.write(x)
-        primer_bam.close()
-        dedup_bam.close()
-        pysam.sort("-o", self.dedup_bam_sort, self.dedup_bam)
-        
-    def generate_dup_bam(self):
-        
-        # get uniq qname list
-        data = pd.read_csv("barcode/"+self.basename+"_barcode_dup.txt",sep = '\t',names = [u'Qname',u'Barcode',u'Freq',u'Length'],low_memory=False)
-        uniq_qname_list = data['Qname'].tolist()
-        
-        #generate dup bam
-        primer_bam = pysam.AlignmentFile(self.primer_bam, 'rb')
-        dup_bam = pysam.AlignmentFile(self.dup_bam, "wb", template=primer_bam)
-        
-        # #too slow
-        # for read in primer_bam:
-        #     # print(read.query_name)
-        #     if read.query_name in uniq_qname_list:
-        #         dup_bam.write(read)
-        # primer_bam.close()
-        # dup_bam.close()
-        # pysam.sort("-o", self.dup_bam_sort, self.dup_bam)
-        
-        #index bam name by pysam to generate dup bam
-        name_indexed = pysam.IndexedReads(primer_bam)
-        name_indexed.build()
-        for name in uniq_qname_list:
-                try:
-                    name_indexed.find(name)
-                except KeyError:
-                    pass
-                else:
-                    iterator = name_indexed.find(name)
-                    for x in iterator:
-                        dup_bam.write(x)
-        primer_bam.close()
-        dup_bam.close()
-        pysam.sort("-o", self.dup_bam_sort, self.dup_bam)
+    # def generate_dup_bam(self):
+    #
+    #     # get uniq qname list
+    #     data = pd.read_csv("barcode/"+self.basename+"_barcode_dup.txt",sep = '\t',names = [u'Qname',u'Barcode',u'Freq',u'Length'],low_memory=False)
+    #     uniq_qname_list = data['Qname'].tolist()
+    #
+    #     #generate dup bam
+    #     primer_bam = pysam.AlignmentFile(self.primer_bam, 'rb')
+    #     dup_bam = pysam.AlignmentFile(self.dup_bam, "wb", template=primer_bam)
+    #
+    #     # #too slow
+    #     # for read in primer_bam:
+    #     #     # print(read.query_name)
+    #     #     if read.query_name in uniq_qname_list:
+    #     #         dup_bam.write(read)
+    #     # primer_bam.close()
+    #     # dup_bam.close()
+    #     # pysam.sort("-o", self.dup_bam_sort, self.dup_bam)
+    #
+    #     #index bam name by pysam to generate dup bam
+    #     name_indexed = pysam.IndexedReads(primer_bam)
+    #     name_indexed.build()
+    #     for name in uniq_qname_list:
+    #             try:
+    #                 name_indexed.find(name)
+    #             except KeyError:
+    #                 pass
+    #             else:
+    #                 iterator = name_indexed.find(name)
+    #                 for x in iterator:
+    #                     dup_bam.write(x)
+    #     primer_bam.close()
+    #     dup_bam.close()
+    #     pysam.sort("-o", self.dup_bam_sort, self.dup_bam)
     
     def filter_multiple_adapter(self):
         
@@ -270,22 +270,25 @@ class Dedup(object):
             print("[PEM-Q]  adapter check alignment file exist, jump...")  
         
         #keep record of multiple adapters
-        multiple_adapt = open("barcode/"+self.basename+"_multiple_adapt.txt", "w")
-        clean_adapt = open("barcode/"+self.basename+"_clean_adapt.txt", "w")
-        bam_file = pysam.AlignmentFile(self.adapter_bam_check_sort, "rb")
+        multiple_adapt = open("barcode/"+self.basename+"_multiple_adapt.txt", "w")#生成储存含有multiple adapter的文件
+        clean_adapt = open("barcode/"+self.basename+"_clean_adapt.txt", "w")#生成储存没有multiple adapter的文件
+        bam_file = pysam.AlignmentFile(self.adapter_bam_check_sort, "rb")#读入sort后的bam文件
         multiple_adapt_list = []
         clean_adapt_list = []
         for read in bam_file:
-            condition1 = any('SA' == tg[0] for tg in read.get_tags())
+            condition1 = any('SA' == tg[0] for tg in read.get_tags())#判断该read是否有多条supplementary的比对结果
             if condition1:
                 multiple_adapt_list.append(read.query_name)
                 multiple_adapt.write(read.query_name+"\n")
             else:
                 clean_adapt_list.append(read.query_name)
                 clean_adapt.write(read.query_name+"\n")
-        
+        multiple_adapt.close()
+        clean_adapt.close()
+        bam_file.close()
         #remove reads with multiple adapters
-        dedup_bam_sort = pysam.AlignmentFile(self.dedup_bam_sort, 'rb')
+        primer_bam = pysam.AlignmentFile(self.primer_bam, 'rb')
+        dedup_bam_sort = primer_bam
         filter_bam = pysam.AlignmentFile(self.filter_bam, "wb", template=dedup_bam_sort)
         name_indexed = pysam.IndexedReads(dedup_bam_sort)
         name_indexed.build()
@@ -301,7 +304,7 @@ class Dedup(object):
         dedup_bam_sort.close()
         filter_bam.close()
         pysam.sort("-o", self.filter_bam_sort, self.filter_bam)
-        
+        primer_bam.close()
         return()
 
 def main():
@@ -316,8 +319,6 @@ def main():
     dedup = Dedup(**kwargs)
     dedup.extract_barcode()
     dedup.barcode_dedup()
-    dedup.generate_dedup_bam()
-    dedup.generate_dup_bam()
     dedup.filter_multiple_adapter()
 
     print("\nrmb_dedup.py Done in {}s".format(round(time()-start_time, 3)))

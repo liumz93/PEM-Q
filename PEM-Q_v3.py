@@ -81,12 +81,12 @@ def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=N
     os.system(cmd)
     
     print("######## Define transloc... ########")
-    cmd = "define_transloc.py {} {}".format(basename, cutsite)
+    cmd = "define_transloc_v3.py {} {}".format(basename, cutsite)
     print(cmd)
     os.system(cmd)
     
     print("######## Define indels... ########")
-    cmd = "define_indel.py {} {}".format(basename, cutsite)
+    cmd = "define_indel_v3.py {} {}".format(basename, cutsite)
     print(cmd)
     os.system(cmd)
     

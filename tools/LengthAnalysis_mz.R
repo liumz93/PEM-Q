@@ -14,11 +14,11 @@ sample <- args[2]
 
 #data <- read.table(file=input_file, header=TRUE, sep="\t")
 data <- read.table(tlx, header=TRUE, sep="\t")
-
+# data <- data[data$Type == "Suspected",]
 # get bait and stitch length
 
 Bl <- data$Bait_end-data$Bait_start+1
-
+# Bl <- data$
 # bait length 
 
 
@@ -34,9 +34,9 @@ data<-data.frame(x,y)
 print("Generating txt file for plotting!")
 write.table(data,paste(sample,"_bait_length_fot_plot.txt",sep=""),sep="\t",quote=FALSE)
 
-print("Plotting bait length Frequecy lines!")
-
-p <- plot_ly(data, x = ~x) %>%  
-        add_trace(y = ~y, name = 'bait length',type= 'scatter',mode = 'lines',line = list(color = I('blue'), width = 2)) %>%  
-		layout(title = "Bait Length",yaxis = list(title = "percentage"), xaxis = list(title = "length(bp)"))
-htmlwidgets::saveWidget(p, paste(sample,"_bait_length_graph.html",sep=""))
+# print("Plotting bait length Frequecy lines!")
+#
+# p <- plot_ly(data, x = ~x) %>%
+#         add_trace(y = ~y, name = 'bait length',type= 'scatter',mode = 'lines',line = list(color = I('blue'), width = 2)) %>%
+# 		layout(title = "Bait Length",yaxis = list(title = "percentage"), xaxis = list(title = "length(bp)"))
+# htmlwidgets::saveWidget(p, paste(sample,"_bait_length_graph.html",sep=""))

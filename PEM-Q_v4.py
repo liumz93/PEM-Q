@@ -27,7 +27,7 @@ Author: Mengzhu LIU
 Contact: liu.mengzhu128@gmail.com/liumz@pku.edu.cn
 
 Usage:
-    PEM-Q.py <genome> <sample> <cutsite> <primer_chr> <primer_start> <primer_end> <primer_strand> <primer>
+    PEM-Q_v4.py <genome> <sample> <cutsite> <primer_chr> <primer_start> <primer_end> <primer_strand> <primer>
 
 Options:
 -h --help               Show this screen.
@@ -71,22 +71,32 @@ def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=N
     os.system("mkdir log")
     
     print("######## Reads alignment... ########")
-    cmd = "align_make.py {} {}_R1.fq.gz {}_R2.fq.gz -a CCACGCGTGCTCTACA -p {} -r {} -s {} -e {} -d {}".format(genome,basename,basename,primer,primer_chr,primer_start,primer_end,primer_strand)
+    cmd = "align_make_v4.py {} {}_R1.fq.gz {}_R2.fq.gz -a CCACGCGTGCTCTACA -p {} -r {} -s {} -e {} -d {}".format(genome,basename,basename,primer,primer_chr,primer_start,primer_end,primer_strand)
     print(cmd)
     os.system(cmd)
     
-    print("######## Barcode dedup... ########")
-    cmd = "rmb_dedup.py {} 17 CCACGCGTGCTCTACA".format(basename)
+    print("######## Barcode Extract... ########")
+    cmd = "rmb_dedup_v4.py {} 17 CCACGCGTGCTCTACA".format(basename)
     print(cmd)
     os.system(cmd)
     
     print("######## Define transloc... ########")
-    cmd = "define_transloc.py {} {}".format(basename, cutsite)
+    cmd = "define_transloc_v4.py {} {}".format(basename, cutsite)
     print(cmd)
     os.system(cmd)
     
     print("######## Define indels... ########")
-    cmd = "define_indel.py {} {}".format(basename, cutsite)
+    cmd = "define_indel_v4.py {} {} {}".format(basename, cutsite, primer_strand)
+    print(cmd)
+    os.system(cmd)
+    
+    print("######## DEDUP... ########")
+    cmd = "dedup_v4.py {}".format(basename)
+    print(cmd)
+    os.system(cmd)
+    
+    print("######## DSB filter... ########")
+    cmd = "DSB_filter.py {} {} {} {} 3f {}".format(basename,primer_chr,cutsite,primer_strand,"_SID_all")
     print(cmd)
     os.system(cmd)
     
@@ -95,7 +105,7 @@ def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=N
     print("PEM-Q Done in {}s".format(round(time()-start_time, 3)))
     
 def main():
-    args = docopt(__doc__,version='PEM-Q 2.0')
+    args = docopt(__doc__,version='PEM-Q 4.0')
     
     kwargs = {'sample':args['<sample>'], 'cutsite':args['<cutsite>'],'genome':args['<genome>'],\
     'primer':args['<primer>'],'primer_chr':args['<primer_chr>'],'primer_start':args['<primer_start>'],\

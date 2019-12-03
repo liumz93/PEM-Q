@@ -14,7 +14,7 @@ data <- read.table(tab, header=TRUE, sep="\t")
 
 # get bait and stitch length
 
-Bl <- nchar(as.character(data$Vector))
+Bl <- data$Vector_inser_size
 print(head(Bl))
 
 # length 

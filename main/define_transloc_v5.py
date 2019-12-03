@@ -210,7 +210,8 @@ class Define_transloc(object):
         os.system("mkdir indel")
         
         bam_file = pysam.AlignmentFile(self.bam_sort, 'rb')
-        transloc_tab = open("transloc/" + self.basename + "_transloc.tab", "w")
+        transloc_tab = open("transloc/" + self.basename + "_mut.tab", "w")
+        discard_tab = open("transloc/" + self.basename + "_discard.tab", "w")
         indel_bam = pysam.AlignmentFile("indel/" + self.basename + "_indel.bam", "wb", template=bam_file)
 
         transloc_tab.write('Qname'+"\t"+\
@@ -238,84 +239,86 @@ class Define_transloc(object):
             
             reference_start = read.reference_start + 1
             reference_end = read.reference_end
-            value = 10 
             if read.is_reverse:
-                cutoff = self.cutsite - value
                 read_strand = '-'
-                transloc_cutoff = abs(reference_end - cutoff)
-
             else:
-                cutoff = self.cutsite + value
                 read_strand = '+'
-                transloc_cutoff = abs(reference_start - cutoff)
-
+            
+            primer_length = 20   
             #reads contain 'SA' tag have chimeric alignment are potential translocation reads
             
             transloc_check = abs(reference_start - read.reference_end)
             condition1 = any('SA' == tg[0] for tg in read.get_tags())
-            condition2 = transloc_check <= transloc_cutoff
+            condition2 = transloc_check > 10
+            # condition3 = transloc_check > self.cutsite + 10
+            # if condition3:
+            #     indel_bam.write(read)
+            # else:
+            if condition2:
+                if condition1:
+                    sa_tag = read.get_tag('SA')
+                    sa_tag_list = sa_tag.split(',')
             
-            if condition1 and condition2:
-                sa_tag = read.get_tag('SA')
-                sa_tag_list = sa_tag.split(',')
-                
-                read_query_name = read.query_name
-                rep_rname = read.reference_name
-                rep_reference_start = reference_start
-                rep_reference_end = read.reference_end
-                rep_strand = read_strand
-                rep_cigarstring = read.cigarstring
+                    read_query_name = read.query_name
+                    rep_rname = read.reference_name
+                    rep_reference_start = reference_start
+                    rep_reference_end = read.reference_end
+                    rep_strand = read_strand
+                    rep_cigarstring = read.cigarstring
 
-                sup_cigarstring = sa_tag_list[3]
-                sup_map_ref_len = self.cigar_map_len('reference',sup_cigarstring)
-                
-                sup_rname = sa_tag_list[0]
-                sup_reference_start = sa_tag_list[1]
-                sup_strand = sa_tag_list[2]
-                sup_reference_end = int(sup_reference_start) + sup_map_ref_len - 1
+                    sup_cigarstring = sa_tag_list[3]
+                    sup_map_ref_len = self.cigar_map_len('reference',sup_cigarstring)
+            
+                    sup_rname = sa_tag_list[0]
+                    sup_reference_start = sa_tag_list[1]
+                    sup_strand = sa_tag_list[2]
+                    sup_reference_end = int(sup_reference_start) + sup_map_ref_len - 1
 
-                #define transloc junction
-                if sup_strand == '+':
-                    transloc_junction = sup_reference_start
+                    #define transloc junction
+                    if sup_strand == '+':
+                        transloc_junction = sup_reference_start
+                    else:
+                        transloc_junction = sup_reference_end
+
+                    #define microhomo sequence
+
+                    # rep_cigarstring have consistant sequential order with sup_cigarstring when have the same trand
+                    # and vice-versa
+            
+                    consistant_sup_cigarstring = sup_cigarstring
+                    if sup_strand != rep_strand:
+                        consistant_sup_cigarstring = self.reverse_cigar_value(sup_cigarstring)#reverse cigarstring
+
+                    rep_sequence = read.query_sequence
+                    microhomo = self.transloc_microhomo(rep_sequence,rep_strand,rep_cigarstring,consistant_sup_cigarstring)
+
+                    # define insertion sequence
+                    insertion = self.transloc_find_insertion(rep_sequence,rep_strand,rep_cigarstring,consistant_sup_cigarstring)
+                    transloc_tab.write(read_query_name+"\t"+\
+                                       rep_rname+"\t"+\
+                                       rep_strand+"\t"+\
+                                       str(rep_reference_start)+"\t"+\
+                                       str(rep_reference_end)+"\t"+\
+                                       sup_rname+"\t"+\
+                                       sup_strand+"\t"+\
+                                       str(sup_reference_start)+"\t"+\
+                                       str(sup_reference_end)+"\t"+\
+                                       sup_rname+"\t"+\
+                                       sup_strand+"\t"+\
+                                       str(transloc_junction)+"\t"+\
+                                       read.query_sequence+"\t"+\
+                                       insertion+"\t"+\
+                                       microhomo+"\n")
+                    #reads do not contain 'SA' tag are potential indel/germline reads
                 else:
-                    transloc_junction = sup_reference_end
-
-                #define microhomo sequence
-
-                # rep_cigarstring have consistant sequential order with sup_cigarstring when have the same trand
-                # and vice-versa
-                
-                consistant_sup_cigarstring = sup_cigarstring
-                if sup_strand != rep_strand:
-                    consistant_sup_cigarstring = self.reverse_cigar_value(sup_cigarstring)#reverse cigarstring
-
-                rep_sequence = read.query_sequence
-                microhomo = self.transloc_microhomo(rep_sequence,rep_strand,rep_cigarstring,consistant_sup_cigarstring)
-
-                # define insertion sequence
-                insertion = self.transloc_find_insertion(rep_sequence,rep_strand,rep_cigarstring,consistant_sup_cigarstring)
-                transloc_tab.write(read_query_name+"\t"+\
-                                   rep_rname+"\t"+\
-                                   rep_strand+"\t"+\
-                                   str(rep_reference_start)+"\t"+\
-                                   str(rep_reference_end)+"\t"+\
-                                   sup_rname+"\t"+\
-                                   sup_strand+"\t"+\
-                                   str(sup_reference_start)+"\t"+\
-                                   str(sup_reference_end)+"\t"+\
-                                   sup_rname+"\t"+\
-                                   sup_strand+"\t"+\
-                                   str(transloc_junction)+"\t"+\
-                                   read.query_sequence+"\t"+\
-                                   insertion+"\t"+\
-                                   microhomo+"\n")
-
-            #reads do not contain 'SA' tag are potential indel/germline reads
+                    indel_bam.write(read)
             else:
-                indel_bam.write(read)
+                discard_tab.write(read.query_name+"\n")
+            
         bam_file.close()
         transloc_tab.close()
         indel_bam.close()
+        discard_tab.close()
         pysam.sort("-o", "indel/" + self.basename + "_indel.sort.bam", "indel/" + self.basename + "_indel.bam")
         
 def main():

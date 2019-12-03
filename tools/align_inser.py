@@ -40,7 +40,7 @@ Input file: transloc/basename_transloc.tab
 Output file: alignment sam/bam file
 
 Author: Mengzhu LIU
-Last Update:2019.9.3
+Last Update:2019.10.15
 
 """
 
@@ -64,7 +64,7 @@ def align_inser_to_vector(basename):
     
     #~~~~~~~~generate fasta file of insertions~~~~~~~~~~#
 
-    transloc_file = basename + "_transloc_all.tab"
+    transloc_file = basename + "_All_Insertions.tab"
     data = pd.read_csv(transloc_file, sep = '\t', index_col=False, low_memory=False)
     datb = data[data["Insertion"].str.len() > 0]
     datb.to_csv(basename+"_transloc_insertion_all.tab",header=True,sep='\t',index=False) 
@@ -83,7 +83,18 @@ def align_inser_to_vector(basename):
     insertion_f.close()
     print(n)
     
-    #~~~~~~~~alignment insertions to vector~~~~~~~~~~#
+    #~~~~~~~~generate fasta file of unaligned reads~~~~~~~~~~#
+
+    sam_file = pysam.AlignmentFile("bwa_align/" + basename + "_sti.sam", "rb")
+    unalign_f = open("bwa_align/" + basename + "_unalign.fa", "w")
+    for read in sam_file:
+        # print(read.reference_name)
+        if read.reference_name is None:
+            unalign_f.write(">"+read.query_name+"\n")
+            unalign_f.write(">"+read.query_sequence+"\n")
+    unalign_f.close()
+    
+    #~~~~~~~~alignment insertions/unalign to vector~~~~~~~~~~#
 
     #build bwa index of vector
     cmd = "samtools faidx vector/vector.fa"
@@ -91,27 +102,33 @@ def align_inser_to_vector(basename):
     cmd = "bwa index -a bwtsw -p vector/vector vector/vector.fa 1>vector/build_index.o 2>vector/build_index.e"
     os.system(cmd)
 
-    #alignment
-    print("[superCasQ]  align insertions to vector...")
+    #alignment insertions
+    print("[PEM-Q]  align insertions to vector...")
                   
-    cmd = "bwa mem -t 4 vector/vector -k 10 -L 0 -T 10 {} > bwa_align/{} 2>bwa_align/bwa_align_vector.log".format(insertion, 
+    cmd = "bwa mem -Y -t 4 vector/vector -K 20  -L 0 -T 15 {} > bwa_align/{} 2>bwa_align/bwa_align_vector.log".format(insertion, 
                                                       insertion_sam)
     print(cmd )
     os.system(cmd)
-
+    
+    #alignment unaligned
+    cmd = "bwa mem -Y -t 4 vector/vector -K 20  -L 0 -T 15 {} > bwa_align/{} 2>bwa_align/bwa_align_vector.log".format("bwa_align/" + basename + "_unalign.fa", 
+                                                      basename + '_unaligned_vector.sam')
+    print(cmd )
+    os.system(cmd)
+    
     cmd = "samtools view -S -b -h bwa_align/{} > bwa_align/{} \
            && samtools sort bwa_align/{} > bwa_align/{} \
            && samtools index bwa_align/{}".format(insertion_sam, insertion_bam, insertion_bam, insertion_bam_sort , insertion_bam_sort)
-    print("[superCasQ]  sort and index bam...")
+    print("[PEM-Q]  sort and index bam...")
     os.system(cmd) 
     
     #~~~~~~~~alignment insertions to genome~~~~~~~~~~#
     
     bwa_index_path = "~/database/bwa_indexes/{}/{}".format("hg38", "hg38")
-    print("[superCasQ] index file used "+bwa_index_path)
-    print("[superCasQ] align insertions to genome...")
+    print("[PEM-Q] index file used "+bwa_index_path)
+    print("[PEM-Q] align insertions to genome...")
                       
-    cmd = "bwa mem -Y -t 4 {} {} > bwa_align/{} 2>bwa_align/bwa_align_inser_genom.log".format(bwa_index_path, 
+    cmd = "bwa mem -Y -t 4 -K 20  -L 0 -T 15 {} {} > bwa_align/{} 2>bwa_align/bwa_align_inser_genom.log".format(bwa_index_path, 
                                          insertion,
                                          inser_genom_sam)
     os.system(cmd)
@@ -138,13 +155,16 @@ def find_MH_end(Vector):
     return(MH_end)
         
 def generate_vector_align_tab(basename):
-    print("[superCasQ]  generating vector tab file...")
+    print("[PEM-Q]  generating vector tab file...")
     
-    vector_seq = SeqIO.read('vector/vector.fa', "fasta").seq
+    # vector_seq = SeqIO.read('vector/vector.fa', "fasta").seq
+    vector_seq = SeqIO.read('PE2.fa', "fasta").seq
     
-    insertion_bam = pysam.AlignmentFile("bwa_align/" + basename + '_inser_vector.sort.bam', "rb")
+    # insertion_bam = pysam.AlignmentFile("bwa_align/" + basename + '_inser_vector.sort.bam', "rb")
+    insertion_bam = pysam.AlignmentFile(basename + '.sort.bam', "rb")
     vector_tab = open(basename + "_vector.tab", "w")
     vector_tab.write('Qname'+"\t"+\
+                        'Insertion'+"\t"+\
                         'Vector'+"\t"+\
                         'Strand'+"\t"+\
                         'Start'+"\t"+\
@@ -153,9 +173,11 @@ def generate_vector_align_tab(basename):
                         'MH_end'+"\n")
 
     for read in insertion_bam:
-        if read.reference_name == "vector":
+        # if read.reference_name == "vector":
+        if read.reference_name == "PE2":
             Start = read.reference_start + 1
             End = read.reference_end
+            Insertion_Seq = read.query_sequence
             Vector = vector_seq[Start-1:End]
             MH_end = find_MH_end(Vector)
             if read.is_reverse:
@@ -166,6 +188,7 @@ def generate_vector_align_tab(basename):
                 Junction = Start
                 
             vector_tab.write(read.query_name+"\t"+\
+                                Insertion_Seq+"\t"+\
                                 str(Vector)+"\t"+\
                                 str(Strand)+"\t"+\
                                 str(Start)+"\t"+\
@@ -203,10 +226,10 @@ def align_vector_to_genome(basename):
     #~~~~~~~~alignment vector to genome~~~~~~~~~~#
     
     bwa_index_path = "~/database/bwa_indexes/{}/{}".format("hg38", "hg38")
-    print("[superCasQ] index file used "+bwa_index_path)
-    print("[superCasQ] align vector to genome...")
+    print("[PEM-Q] index file used "+bwa_index_path)
+    print("[PEM-Q] align vector to genome...")
                       
-    cmd = "bwa mem -Y -t 4 {} {} > bwa_align/{} 2>bwa_align/bwa_align_vector_genom.log".format(bwa_index_path, 
+    cmd = "bwa mem -Y -t 4 -K 20  -L 0 -T 15 {} {} > bwa_align/{} 2>bwa_align/bwa_align_vector_genom.log".format(bwa_index_path, 
                                          vector_fa,
                                          vector_genom_sam)
     os.system(cmd)
@@ -228,11 +251,11 @@ def main():
     args = docopt(__doc__,version='align_inser 1.0')
     
     kwargs = {'basename':args['<basename>']}
-    print('[superCasQ] basename: ' + str(kwargs['basename']))
+    print('[PEM-Q] basename: ' + str(kwargs['basename']))
 
-    align_inser_to_vector(**kwargs)
+    # align_inser_to_vector(**kwargs)
     generate_vector_align_tab(**kwargs)
-    align_vector_to_genome(**kwargs)
+    # align_vector_to_genome(**kwargs)
 
     print("\nalign_inser.py Done in {}s".format(round(time()-start_time, 3)))
     

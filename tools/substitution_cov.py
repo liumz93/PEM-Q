@@ -27,7 +27,7 @@ Author: Mengzhu LIU
 Contact: liu.mengzhu128@gmail.com/liumz@pku.edu.cn
 
 Usage:
-    substitution_cov <basename> <chrom> <chrom_size>
+    substitution_cov <basename> <chrom> <chrom_size> <primer_strand>
 
 Options:
 -h --help               Show this screen.
@@ -61,11 +61,11 @@ def cal_soft_clipping_number(cigar):
         number = 0
     return(number)
     
-def generate_bed_file(basename=None,chrom=None,chrom_size=None):
+def generate_bed_file(basename=None,chrom=None,chrom_size=None,primer_strand=None):
     
-    substitution_file = "indel/" + basename + "_indel_substitution.tab"
+    substitution_file = basename + "_Substitution.tab"
     data = pd.read_csv(substitution_file, sep = '\t', index_col=False, low_memory=False)
-    sub_bed_file = "indel/" + basename + "_substitution.bed"
+    sub_bed_file = basename + "_substitution.bed"
     sub_bed = open(sub_bed_file, "w")
     
     mdstring = data["MDstring"]
@@ -73,8 +73,7 @@ def generate_bed_file(basename=None,chrom=None,chrom_size=None):
     for i in range(0, count):
         md_string = data["MDstring"][i]
         md_list = re.split('(\d+)',md_string)
-        md_string_list = md_list[1:(len(md_list)-1)]
-        
+        md_string_list = md_list[1:(len(md_list)-1)]    
         len_list = []
         seq_length = 0
         sub_length = 0
@@ -99,9 +98,10 @@ def generate_bed_file(basename=None,chrom=None,chrom_size=None):
     sub_bed.close()
     
     chrom_size_file = chrom_size
-    sub_histo_file = "indel/" + basename + "_substitution_histo.txt"
+    sub_histo_file = basename + "_substitution_histo.txt"
     cmd = "bedtools genomecov -i {} -g {} -d > {}".format(sub_bed_file,chrom_size_file,sub_histo_file)
-    # os.system(cmd)
+    print(cmd)
+    os.system(cmd)
     
 def main():
     
@@ -109,10 +109,11 @@ def main():
     
     args = docopt(__doc__,version='substitution_cov 1.0')
     
-    kwargs = {'basename':args['<basename>'],'chrom':args['<chrom>'],'chrom_size':args['<chrom_size>']}
+    kwargs = {'basename':args['<basename>'],'chrom':args['<chrom>'],'chrom_size':args['<chrom_size>'],'primer_strand':args['<primer_strand>']}
     print('[superCasQ] basename: ' + str(kwargs['basename']))
     print('[superCasQ] chrom: ' + str(kwargs['chrom']))
     print('[superCasQ] chrom_size: ' + str(kwargs['chrom_size']))
+    print('[superCasQ] primer_strand: ' + str(kwargs['primer_strand']))
 
     generate_bed_file(**kwargs)
 
