@@ -1,6 +1,6 @@
 # PEM-Q
 
-PEM-Q is a brand new pipeline built for analysis  of PEM-seq (https://www.nature.com/articles/s41421-019-0088-8/). Comparing with superQ (https://github.com/liumz93/superQ), PEM-seq is a more powerful tool for analyzing repair outcomes of genome editing, including indels, microhomologies, large deletions, vector integrations, and translocations.
+PEM-Q is a brand new pipeline built for analysis  of PEM-seq (https://www.nature.com/articles/s41421-019-0088-8/) data. Comparing with superQ (https://github.com/liumz93/superQ), PEM-seq is a more powerful tool for analyzing repair outcomes of genome editing, including indels, microhomologies, large deletions, vector integrations, and translocations.
 
 ## Getting Started
 
@@ -109,7 +109,7 @@ ST-E00578:442:HF32JCCX2:7:1210:11221:59112	chr15	+	61986633	61986726	chr1	+	6168
 ST-E00578:442:HF32JCCX2:7:1104:29883:50551	chr15	+	61986633	61986726	chr1	+	6168640	6168751	chr1	6168640	AGGAGGAAACCAGAGGGAATCCTCACATTCCTACTTGGGATCCGCGGGTATCCCTCGCGCCCCTGAATTGCTAGGAAGACTGCGGTGAGTCGTGATCTATAGCTTTACAAGGTACGCCTGGCCTTGAACTTTCTAACGAAATTCAGGACAGTCTATCAGAAGTAAAGTGGAAAATGGCTTTACGAGGTATGCTTGGCCTTAAACTTTCTACCACGCGTGCTCTACACTCGTGTAAGATTCCCT	5	98	98	209	243		T	0	CTCGTGTAAGATTCCCT	
 ST-E00578:442:HF32JCCX2:7:2102:25327:37383	chr15	+	61986633	61986726	chr1	+	6168640	6168706	chr1	6168640	AGGAGGAAACCAGAGGGAATCCTCACATTCCTACTTGGGATCCGCGGGTATCCCTCGCGCCCCTGAATTGCTAGGAAGACTGCGGTGAGTCGTGATCTATAGCTTTACAAGGTACGCCTGGCCTTGAACTTTCTAACGAAATTCAGGACAGTCTATCAGAAGTACCACGCGTGCTCTACACTGTTTGTACACTAAGA	5	98	98	164	197		T	0	CTGTTTGTACACTAAGA
 ```
-###Explanation of column titles:
+### Explanation of column titles:
 
 **Qname**: sequence name
 
