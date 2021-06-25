@@ -155,7 +155,7 @@ class Dedup(object):
         datb = data[data.duplicated(['Barcode'])]
         datb = datb.reset_index(drop=True)
         #unique barcode
-        data = data.drop_duplicates(['Barcode'])#rough dedup
+        data = data.drop_duplicates(['Barcode'], keep = 'first' )#rough dedup
         data = data.reset_index(drop=True)#reset index
         
         
