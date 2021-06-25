@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #Author: Mengzhu
 #Date:2019.9.1
+#Last Update:2021.1.12
 
 """PEM-Q
     
@@ -41,14 +42,11 @@ Options:
 <primer_strand>         strand of red primer(+/-).
 <primer>                sequence of red primer.
 
-In this script, reads will be mapped by bwa-mem, BOTH single end or 
-pair end reads are compatible. When analyzing PEM-seq data, you should 
-also provide adapter and primer sequences, so that adapter alignment 
-and no primer filter can be done.
+In this program is for PEM-seq data analysis. Pair end target sequencing data is also compatible with this program.
 
 Input file: fastq file 
-Output file: informative tab files
-Last Update:2019.9.10
+Output directory: results
+Last Update:2021.1.12
 
 """
 
@@ -67,35 +65,65 @@ def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=N
     # genome = "hg38"
     # primer = "AGGATCTCACCCGGAACAGC"
     basename = sample
-    
+
     os.system("mkdir log")
-    
-    print("######## Reads alignment... ########")
-    cmd = "align_make.py {} {}_R1.fq.gz {}_R2.fq.gz -a CCACGCGTGCTCTACA -p {} -r {} -s {} -e {} -d {}".format(genome,basename,basename,primer,primer_chr,primer_start,primer_end,primer_strand)
+
+    print("######## 01 Reads alignment... ########")
+    cmd = "align_make_v5.1.py {} {}_R1.fq.gz {}_R2.fq.gz -a CCACGCGTGCTCTACA -p {} -r {} -s {} -e {} -d {}".format(genome,basename,basename,primer,primer_chr,primer_start,primer_end,primer_strand)
     print(cmd)
     os.system(cmd)
-    
-    print("######## Barcode dedup... ########")
-    cmd = "rmb_dedup.py {} 17 CCACGCGTGCTCTACA".format(basename)
+
+    print("######## 02 Barcode Extract... ########")
+    cmd = "rmb_dedup_v4.py {} 17 CCACGCGTGCTCTACA".format(basename)
     print(cmd)
     os.system(cmd)
-    
-    print("######## Define transloc... ########")
-    cmd = "define_transloc.py {} {}".format(basename, cutsite)
+
+    print("######## 03 Define transloc... ########")
+    cmd = "define_transloc_v5.1_mpf.py {} {}".format(basename, cutsite)
     print(cmd)
     os.system(cmd)
-    
-    print("######## Define indels... ########")
-    cmd = "define_indel.py {} {}".format(basename, cutsite)
+
+    print("######## 04 Define indels... ########")
+    cmd = "define_indel_v5.1_mpf.py {} {} {}".format(basename, cutsite, primer_strand)
     print(cmd)
     os.system(cmd)
+
+    print("######## 05 DEDUP... ########")
+    cmd = "dedup_v5.1_mpf.py {}".format(basename)
+    print(cmd)
+    os.system(cmd)
+
+    print("######## 06 substitutions... ########")
+    cmd = "define_substitution.py {} {} {} {}".format(basename,cutsite,10,primer_strand)
+    print(cmd)
+    os.system(cmd)
+
+    print("######## 07 filter and Statistics... ########")
+    cmd = "define_statistics_add_filter.py {} {} {} {} {} {} {} CCACGCGTGCTCTACA".format(basename,genome,cutsite,500000,primer,primer_chr,primer_strand)
+    print(cmd)
+    os.system(cmd)
+
+    # print("######## revise microhomology... ########")
+    # cmd = "revise_microhomolog.py {} {} {}".format(basename,cutsite,primer_strand)
+    # print(cmd)
+    # os.system(cmd)
+    
+    # print("######## 08 processing translocation filter... ########")
+    # cmd = "DSB_filter_update.py {} {} {} {} {} {}".format(basename,primer_chr,cutsite,primer_strand,"3fe","_Translocations")
+    # print(cmd)
+    # os.system(cmd)
+    
+    # print("######## 09 multiple mapping filter... ########")
+    # cmd = "multiple_mapping_filter.py {} ".format(basename)
+    # print(cmd)
+    # os.system(cmd)
     
     print("All done, please check log files!")
     
     print("PEM-Q Done in {}s".format(round(time()-start_time, 3)))
     
 def main():
-    args = docopt(__doc__,version='PEM-Q 2.0')
+    args = docopt(__doc__,version='PEM-Q v5.1s')
     
     kwargs = {'sample':args['<sample>'], 'cutsite':args['<cutsite>'],'genome':args['<genome>'],\
     'primer':args['<primer>'],'primer_chr':args['<primer_chr>'],'primer_start':args['<primer_start>'],\
