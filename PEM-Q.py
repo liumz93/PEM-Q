@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #Author: Mengzhu
 #Date:2019.9.1
-#Last Update:2021.1.12
+#Last Update:2021.6.25
 
 """PEM-Q
     
@@ -25,7 +25,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 Author: Mengzhu LIU
-Contact: liu.mengzhu128@gmail.com/liumz@pku.edu.cn
+Contact: liumz@pku.edu.cn/liu.mengzhu128@gmail.com
 
 Usage:
     PEM-Q.py <genome> <sample> <cutsite> <primer_chr> <primer_start> <primer_end> <primer_strand> <primer>
