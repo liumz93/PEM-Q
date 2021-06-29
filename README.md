@@ -1,6 +1,6 @@
 # PEM-Q
 
-PEM-Q is a brand new pipeline built for analysis  of PEM-seq (https://www.nature.com/articles/s41421-019-0088-8/) data. Comparing with superQ (https://github.com/liumz93/superQ), PEM-seq is a more powerful tool for analyzing repair outcomes of genome editing, including indels, microhomologies, large deletions, vector integrations, and translocations.
+PEM-Q is a brand new pipeline built for analysis  of PEM-seq (https://www.nature.com/articles/s41421-019-0088-8/). Comparing with superQ (https://github.com/liumz93/superQ), PEM-seq is a more powerful tool for analyzing repair outcomes of genome editing, including indels, microhomologies, large deletions, vector integrations, and translocations.
 
 ## Getting Started
 
@@ -41,13 +41,41 @@ Please be sure to install:
 2. bwa-0.7.12-r1034
 3. samtools 1.3.1
 
-### Installing
+#### Build bwa index
+
+Please add your bwa index into the environment configuration file (~/.bashrc).
+
+```
+export BWA_INDEX=YOUR/BWA_INDEX/PATH
+```
+
+For example:
+
+```
+export BWA_INDEX=/home/mengzhu/database/bwa_indexes
+```
+
+And then in $BWA_INDEX, generate a genome folder and build your bwa index. For example:
+
+```
+YOUR@SERVER:YOUR/BWA_INDEX/PATH$ mkdir mm10
+YOUR@SERVER:YOUR/BWA_INDEX/PATH$ cd mm10
+YOUR@SERVER:YOUR/BWA_INDEX/PATH$ bwa index -a bwtsw -p mm10 mm10.fa
+YOUR@SERVER:YOUR/BWA_INDEX/PATH$ ls /home/mengzhu/database/bwa_indexes/mm10
+mm10.amb  mm10.ann  mm10.bwt  mm10.pac  mm10.sa
+```
+### Installing PEM-Q
 
 ```
 git clone https://github.com/liumz93/PEM-Q
 ```
+Add below variables into the environment configuration file (~/.bashrc) for PEM-Q according to your  installation path.
 
-
+```
+export PATH="/your/path/PEM-Q:$PATH"
+export PATH="/your/path/PEM-Q/main:$PATH"
+export PATH="/your/path/PEM-Q/tools:$PATH"
+```
 ## Running PEM-Q
 
 ### Basic analysis
@@ -95,7 +123,7 @@ Editing Efficiency	0.39288283261198825
 ```
 ### Events file
 
-There are separate files for deletions, insertions, inversions and intra- or inter chromosomal translocations. For example:
+There are separate files for deletions, insertions, inversions and intra- or inter chromosomal translocations. Each row represent a edit event. For example:
 
 ```
 Qname	Bait_rname	Bait_strand	Bait_start	Bait_end	Prey_rname	Prey_strand	Prey_start	Prey_end	Rname	Strand	Junction	Sequence	B_Qstart	B_Qend	Qstart	Qend	Qlen	Insertion	Microhomolog	Prey_MQ	Barcode
@@ -109,7 +137,7 @@ ST-E00578:442:HF32JCCX2:7:1210:11221:59112	chr15	+	61986633	61986726	chr1	+	6168
 ST-E00578:442:HF32JCCX2:7:1104:29883:50551	chr15	+	61986633	61986726	chr1	+	6168640	6168751	chr1	6168640	AGGAGGAAACCAGAGGGAATCCTCACATTCCTACTTGGGATCCGCGGGTATCCCTCGCGCCCCTGAATTGCTAGGAAGACTGCGGTGAGTCGTGATCTATAGCTTTACAAGGTACGCCTGGCCTTGAACTTTCTAACGAAATTCAGGACAGTCTATCAGAAGTAAAGTGGAAAATGGCTTTACGAGGTATGCTTGGCCTTAAACTTTCTACCACGCGTGCTCTACACTCGTGTAAGATTCCCT	5	98	98	209	243		T	0	CTCGTGTAAGATTCCCT	
 ST-E00578:442:HF32JCCX2:7:2102:25327:37383	chr15	+	61986633	61986726	chr1	+	6168640	6168706	chr1	6168640	AGGAGGAAACCAGAGGGAATCCTCACATTCCTACTTGGGATCCGCGGGTATCCCTCGCGCCCCTGAATTGCTAGGAAGACTGCGGTGAGTCGTGATCTATAGCTTTACAAGGTACGCCTGGCCTTGAACTTTCTAACGAAATTCAGGACAGTCTATCAGAAGTACCACGCGTGCTCTACACTGTTTGTACACTAAGA	5	98	98	164	197		T	0	CTGTTTGTACACTAAGA
 ```
-### Explanation of column titles:
+###Explanation of column titles
 
 **Qname**: sequence name
 
@@ -142,3 +170,19 @@ ST-E00578:442:HF32JCCX2:7:2102:25327:37383	chr15	+	61986633	61986726	chr1	+	6168
 **Microhomolog**: microhomology sequence used by deletions or transloctions
 
 **Barcode**: random molecular barcode
+
+### Useful tools to convert PEM-Q output into bdg format
+
+For note, bdg format can be directly viewed in **igv**(https://igv.org/app/).
+
+convert PEM-Q output into bdg by tab2bdg_PEMQ.py
+
+```
+tab2bdg_PEMQ.py CC055c_Translocation.tab mm10
+```
+convert vector output into bdg by vectorTab2bdg.py
+
+```
+vectorTab2bdg.py CC055c_all_vector.tab data/pX330_SpCas9.fa
+```
+
