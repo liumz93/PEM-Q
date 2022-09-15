@@ -239,13 +239,13 @@ def statistics_add_filter(basename=None,genome=None,cutsite=None,transloc_range=
     merge_df.to_csv("results/" + basename + "_Editing_events.tab", header = True, sep = '\t', index=False)
     
     #Plot dot plot
-    cmd = "/home/mengzhu/Scripts/R/TranslocPlot.R results/{}_Editing_events.tab results/{}_Editing_events_dot_plot.pdf \
+    cmd = "TranslocPlot.R results/{}_Editing_events.tab results/{}_Editing_events_dot_plot.pdf \
            binsize=2000000 assembly={} plotshape=octogon strand=0".format(basename,basename,genome)
     print(cmd)
     os.system(cmd)
     
     #generate html file
-    cmd = "/home/mengzhu/github/PEM-Q/tools/R/TranslocHTMLReads_PEMQ.pl results/{}_Editing_events.tab results/{}_Editing_events.html \
+    cmd = "TranslocHTMLReads_PEMQ.pl results/{}_Editing_events.tab results/{}_Editing_events.html \
            --primer {} -adapter {}".format(basename,basename,primer,adapter)
     print(cmd)
     os.system(cmd)
