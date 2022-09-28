@@ -41,7 +41,7 @@ Please be sure to install:
 2. bwa-0.7.12-r1034
 3. samtools 1.3.1
 
-### scripts needed from Transloc_pipeline
+#### Other scripts
 
 We have applied the TranslocPlot.R and TranslocHTMLReads.pl from transloc_pipeline (https://github.com/robinmeyers/transloc_pipeline) for fast visualization, so we suggest you download the relevant scripts from their R and lib folders. Noted that no download does not affect the running of PEM-Q and generation of the final files although errors will report.
 
