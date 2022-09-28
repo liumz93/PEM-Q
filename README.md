@@ -64,6 +64,7 @@ YOUR@SERVER:YOUR/BWA_INDEX/PATH$ bwa index -a bwtsw -p mm10 mm10.fa
 YOUR@SERVER:YOUR/BWA_INDEX/PATH$ ls /home/mengzhu/database/bwa_indexes/mm10
 mm10.amb  mm10.ann  mm10.bwt  mm10.pac  mm10.sa
 ```
+
 ### Installing PEM-Q
 
 ```
@@ -76,6 +77,12 @@ export PATH="/your/path/PEM-Q:$PATH"
 export PATH="/your/path/PEM-Q/main:$PATH"
 export PATH="/your/path/PEM-Q/tools:$PATH"
 ```
+## Transloc_pipeline
+
+We have applied the TranslocPlot.R and TranslocHTMLReads.pl from transloc_pipeline (https://github.com/robinmeyers/transloc_pipeline) fast visualization, so we suggest you download the relevant scripts from their R and lib folders. Noted that if no download does not affect the running of PEM-Q and generation of the final files although errors will reporte in the last step.
+
+For more flexible visualization, please convert result file into bdg format and view them in IGV (https://software.broadinstitute.org/software/igv/download).
+
 ## Running PEM-Q
 
 ### Basic analysis
