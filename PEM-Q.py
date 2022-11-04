@@ -28,7 +28,7 @@ Author: Mengzhu LIU
 Contact: liumz@pku.edu.cn/liu.mengzhu128@gmail.com
 
 Usage:
-    PEM-Q.py <genome> <sample> <cutsite> <primer_chr> <primer_start> <primer_end> <primer_strand> <primer>
+    PEM-Q.py <genome> <sample> <cutsite> <primer_chr> <primer_start> <primer_end> <primer_strand> <primer> <umi_length>
 
 Options:
 -h --help               Show this screen.
@@ -41,6 +41,7 @@ Options:
 <primer_end>            end of red primer.
 <primer_strand>         strand of red primer(+/-).
 <primer>                sequence of red primer.
+<umi_length>            length of umi
 
 In this program is for PEM-seq data analysis. Pair end target sequencing data is also compatible with this program.
 
@@ -56,7 +57,7 @@ import threading
 from time import time
 from docopt import docopt
 
-def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=None, primer_start=None, primer_end=None, primer_strand=None):
+def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=None, primer_start=None, primer_end=None, primer_strand=None, umi_length=17):
     
     start_time = time()
     
@@ -74,7 +75,7 @@ def run_script(sample=None, cutsite=None, genome=None, primer=None, primer_chr=N
     os.system(cmd)
 
     print("######## 02 Barcode Extract... ########")
-    cmd = "rmb_dedup_v4.py {} 17 CCACGCGTGCTCTACA".format(basename)
+    cmd = "rmb_dedup_v4.py {} {} CCACGCGTGCTCTACA".format(basename, umi_length)
     print(cmd)
     os.system(cmd)
 
@@ -127,7 +128,9 @@ def main():
     
     kwargs = {'sample':args['<sample>'], 'cutsite':args['<cutsite>'],'genome':args['<genome>'],\
     'primer':args['<primer>'],'primer_chr':args['<primer_chr>'],'primer_start':args['<primer_start>'],\
-    'primer_end':args['<primer_end>'],'primer_strand':args['<primer_strand>']}
+    'primer_end':args['<primer_end>'],'primer_strand':args['<primer_strand>'],\
+    'umi_length':args['<umi_length>']
+    }
     
     print('[PEM-Q] genome: ' + str(kwargs['genome']))
     print('[PEM-Q] sample: ' + str(kwargs['sample']))
@@ -137,6 +140,7 @@ def main():
     print('[PEM-Q] primer_start: ' + str(kwargs['primer_start']))
     print('[PEM-Q] primer_end: ' + str(kwargs['primer_end']))
     print('[PEM-Q] primer_strand: ' + str(kwargs['primer_strand']))
+    print('[PEM-Q] umi_length: ' + str(kwargs['umi_length']))
     
     try:
         run_script(**kwargs)
