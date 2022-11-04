@@ -58,6 +58,7 @@ Last Update:2019.5.9
     
 import os
 import pysam
+import gzip
 from time import time
 from docopt import docopt
 import pandas as pd
@@ -124,18 +125,40 @@ class Dedup(object):
             
         # only keep query with barcode length >= barcode_length-2
         os.system("mkdir barcode")
-        bam_file = pysam.AlignmentFile(self.adapter_bam, "rb")
         barcode_list = open("barcode/"+self.basename+"_barcode_list.txt", "w")
-        
-        for read in bam_file.fetch():
-            
-            if read.query_alignment_length >= (len(self.adapter) - 2):#aligned adapter length allow 2 deletion
-                bar_start = read.query_alignment_end + 1
-                bar_end = read.query_length
-                bar_length = bar_end - bar_start + 1
+        barcode_input_file = self.basename+'_I2.fq.gz'
+        if os.path.exists(barcode_input_file):
+            if barcode_input_file.endswith('.gz'):
+                f1_in = gzip.open(barcode_input_file,'rt')
+            else:
+                f1_in = open(barcode_input_file,'rt')
+            while (1):
+                f1_id_line   = f1_in.readline().strip()
+                f1_seq_line  = f1_in.readline().strip()
+                f1_plus_line = f1_in.readline()
+                f1_qual_line = f1_in.readline().strip()
+                if not f1_qual_line : break
+
+                query_name = f1_id_line.split(" ")[0][1:]
+                barcode_seq = f1_seq_line
+                bar_length = len(f1_seq_line)
                 if bar_length <= self.barcode_length and bar_length >=(self.barcode_length - 2):#barcode allow 2 deletion
-                    barcode_seq = read.query_sequence[(bar_start-1) : bar_end]
-                    barcode_list.write(str(read.query_name) + "\t" + str(barcode_seq)+"\n")            
+                    barcode_list.write(query_name + "\t" + str(barcode_seq)+"\n")
+
+
+
+
+        else:
+            bam_file = pysam.AlignmentFile(self.adapter_bam, "rb")
+            
+            for read in bam_file.fetch():
+                if read.query_alignment_length >= (len(self.adapter) - 2):#aligned adapter length allow 2 deletion
+                    bar_start = read.query_alignment_end + 1
+                    bar_end = read.query_length
+                    bar_length = bar_end - bar_start + 1
+                    if bar_length <= self.barcode_length and bar_length >=(self.barcode_length - 2):#barcode allow 2 deletion
+                        barcode_seq = read.query_sequence[(bar_start-1) : bar_end]
+                        barcode_list.write(str(read.query_name) + "\t" + str(barcode_seq)+"\n")            
         barcode_list.close()
     
     def barcode_dedup(self):  
@@ -304,6 +327,7 @@ class Dedup(object):
         dedup_bam_sort.close()
         filter_bam.close()
         pysam.sort("-o", self.filter_bam_sort, self.filter_bam)
+        pysam.index(self.filter_bam_sort)
         primer_bam.close()
         return()
 
