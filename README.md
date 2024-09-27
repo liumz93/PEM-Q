@@ -2,8 +2,9 @@
 
 PEM-Q is a brand new pipeline built for analysis  of PEM-seq (https://www.nature.com/articles/s41421-019-0088-8/). Comparing with superQ (https://github.com/liumz93/superQ), PEM-seq is a more powerful tool for analyzing repair outcomes of genome editing, including indels, microhomologies, large deletions, vector integrations, and translocations.
 
-### Publications: 
-https://academic.oup.com/nar/article/49/15/8732/6345468
+### Citations: 
+
+Mengzhu Liu, Weiwei Zhang, Changchang Xin, Jianhang Yin, Yafang Shang, Chen Ai, Jiaxin Li, Fei-Long Meng, Jiazhi Hu, Global detection of DNA repair outcomes induced by CRISPR–Cas9, Nucleic Acids Research, Volume 49, Issue 15, 7 September 2021, Pages 8732–8742, https://doi.org/10.1093/nar/gkab686
 
 ## Getting Started
 
