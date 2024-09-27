@@ -2,6 +2,7 @@
 
 PEM-Q is a brand new pipeline built for analysis  of PEM-seq (https://www.nature.com/articles/s41421-019-0088-8/). Comparing with superQ (https://github.com/liumz93/superQ), PEM-seq is a more powerful tool for analyzing repair outcomes of genome editing, including indels, microhomologies, large deletions, vector integrations, and translocations.
 
+### Publications: https://academic.oup.com/nar/article/49/15/8732/6345468
 ## Getting Started
 
 ### PEM-Q structure
