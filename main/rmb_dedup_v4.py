@@ -257,7 +257,7 @@ class Dedup(object):
             #alignment
             print("[PEM-Q]  align to check adapter...")
                               
-            cmd = "bwa mem -t 8 adapter/adapter -k 5 -L 0 -T 14 {} > {} 2>barcode/bwa_align_adapter.log".format(self.fastq_check, 
+            cmd = "bwa mem -t 8 -k 5 -L 0 -T 14 adapter/adapter {} > {} 2>barcode/bwa_align_adapter.log".format(self.fastq_check, 
                                                               self.adapter_sam_check)
             os.system(cmd)
             print("[PEM-Q] "+cmd)
