@@ -270,7 +270,7 @@ class Align_make(object):
             #alignment
             print("[PEM-Q]  align to adapter...")
                               
-            cmd = "bwa mem -t 8 adapter/adapter -k 10 -L 0 -T 10 {} > bwa_align/{} 2>bwa_align/bwa_align_adapter.log".format(self.fastq_r2, 
+            cmd = "bwa mem -t 8 -k 10 -L 0 -T 10 adapter/adapter {} > bwa_align/{} 2>bwa_align/bwa_align_adapter.log".format(self.fastq_r2, 
                                                               self.adpt_sam)
             os.system(cmd)
             print("[PEM-Q] "+cmd)
