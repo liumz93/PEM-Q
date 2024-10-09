@@ -357,6 +357,8 @@ class Define_transloc(object):
         indel_bam.close()
         discard_tab.close()
         pysam.sort("-o", "indel/" + self.basename + "_indel.sort.bam", "indel/" + self.basename + "_indel.bam")
+        pysam.index("indel/" + self.basename + "_indel.sort.bam")
+        pysam.index("indel/" + self.basename + "_indel.bam")
         
 def main():
     
