@@ -164,7 +164,7 @@ def generate_vector_align_tab(basename=None,vector_fa=None):
                                 pair_flag+"\n")
     vector_tab.close()
     
-    vector_tab_file = pd.read_csv(basename+"_vector_confident_inser.tab",sep = '\t', index_col=False)
+    vector_tab_file = pd.read_csv("vector/" + basename+"_vector_confident_inser.tab",sep = '\t', index_col=False)
     insertion_file = pd.read_csv("unique/" + basename + "_Insertion.tab",sep = '\t', index_col=False)
     vector_merge = pd.merge(vector_tab_file, insertion_file, on='Qname', how='inner')
     vector_merge.to_csv(basename + "_vector_confident_inser.tab", header = True, sep = '\t', index=False, columns = [u'Qname',
