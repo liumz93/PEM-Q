@@ -384,7 +384,7 @@ def proper_pair_tab(basename,vector_fa,genome,bait_chr,bait_strand,sgRNA_start,s
     
     os.system("align_inser_va.py {} -i {}".format(basename,vector_fa))
     vector_baitonly = pd.read_csv(directory_store+"/"+basename + "_vector_baitonly_inser.tab", sep = '\t')
-    vector_insertion = pd.read_csv(directory_store+"/"+basename + "_vector_confident_inser.tab", sep = '\t')
+    vector_insertion = pd.read_csv(basename + "_vector_confident_inser.tab", sep = '\t')
     vector_final = vector_baitonly.append([vector_insertion])
     #remove sgRNA self
     condition = (vector_final['Vector_start'] >= int(sgRNA_start) - 3) & \
