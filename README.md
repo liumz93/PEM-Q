@@ -46,7 +46,7 @@ Please be sure to install:
 1. FLASH v1.2.11
 2. bwa-0.7.12-r1034
 3. samtools 1.3.1
-4. seqtk
+4. seqtk (https://github.com/lh3/seqtk)
 
 #### Other scripts
 
