@@ -63,7 +63,7 @@ def align_inser_to_vector(basename=None,vector_fa=None):
     
     #~~~~~~~~generate fasta file of insertions~~~~~~~~~~#
 
-    insertion_file = "unique/" + basename + "_SID_all_dsb.tab"
+    insertion_file = "unique/" + basename + "_SID_all.tab"
     data = pd.read_csv(insertion_file, sep = '\t', index_col=False, low_memory=False)
     datb = data[data["Insertion"].str.len() > 0]
     # datb.to_csv(basename+"_transloc_insertion_all.tab",header=True,sep='\t',index=False)
