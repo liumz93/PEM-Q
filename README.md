@@ -8,7 +8,7 @@ PEM-Q is a brand new pipeline built for analysis  of PEM-seq (https://www.nature
 
 2. Yin, J., Liu, M., Liu, Y. et al. Optimizing genome editing strategy by primer-extension-mediated sequencing. Cell Discov 5, 18 (2019). https://doi.org/10.1038/s41421-019-0088-8
 
-3. doi: 10.5281/zenodo.18176124
+3. doi: 10.5281/zenodo.18176123
 
 ## Getting Started
 
@@ -202,5 +202,6 @@ convert vector output into bdg by vectorTab2bdg.py
 ```
 vectorTab2bdg.py CC055c_all_vector.tab data/pX330_SpCas9.fa
 ```
+
 
 
