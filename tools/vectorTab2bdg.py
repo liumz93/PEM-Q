@@ -7,7 +7,7 @@ from docopt import docopt
 import pandas as pd
 import numpy as np
 
-print "HELLO, Mengzhu, here we are go to make a tab file to bdg file ..."
+print "HELLO, here we are go to make a tab file to bdg file ..."
 import sys, os
 
 if len(sys.argv) != 3:
