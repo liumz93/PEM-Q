@@ -4,9 +4,11 @@ PEM-Q is a brand new pipeline built for analysis  of PEM-seq (https://www.nature
 
 ### Citations: 
 
-Mengzhu Liu, Weiwei Zhang, Changchang Xin, Jianhang Yin, Yafang Shang, Chen Ai, Jiaxin Li, Fei-Long Meng, Jiazhi Hu, Global detection of DNA repair outcomes induced by CRISPR–Cas9, Nucleic Acids Research, Volume 49, Issue 15, 7 September 2021, Pages 8732–8742, https://doi.org/10.1093/nar/gkab686
+1. Mengzhu Liu, Weiwei Zhang, Changchang Xin, Jianhang Yin, Yafang Shang, Chen Ai, Jiaxin Li, Fei-Long Meng, Jiazhi Hu, Global detection of DNA repair outcomes induced by CRISPR–Cas9, Nucleic Acids Research, Volume 49, Issue 15, 7 September 2021, Pages 8732–8742, https://doi.org/10.1093/nar/gkab686
 
-Yin, J., Liu, M., Liu, Y. et al. Optimizing genome editing strategy by primer-extension-mediated sequencing. Cell Discov 5, 18 (2019). https://doi.org/10.1038/s41421-019-0088-8
+2. Yin, J., Liu, M., Liu, Y. et al. Optimizing genome editing strategy by primer-extension-mediated sequencing. Cell Discov 5, 18 (2019). https://doi.org/10.1038/s41421-019-0088-8
+
+3. doi: 10.5281/zenodo.18176124
 
 ## Getting Started
 
@@ -200,4 +202,5 @@ convert vector output into bdg by vectorTab2bdg.py
 ```
 vectorTab2bdg.py CC055c_all_vector.tab data/pX330_SpCas9.fa
 ```
+
 
