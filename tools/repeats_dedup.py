@@ -3,8 +3,6 @@
 #Author: Mengzhu
 """repeats_dedup
 
-I wish i could solve this problem as quickly as possible!
-
 Usage:
     repeats_dedup [options] <file> <mapqual_cutoff>
 
