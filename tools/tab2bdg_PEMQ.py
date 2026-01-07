@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-print "HELLO, Stranger, this scritp is for generating bdg file of PEM-Q results file ..."
+print "HELLO, this scritp is for generating bdg file of PEM-Q results file ..."
 import sys, os
 import pandas as pd
 import numpy as np
