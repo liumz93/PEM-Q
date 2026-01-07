@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: "PEM-Q"
+message: "If you use this software, please cite it."
+authors:
+  - family-names: Liu
+    given-names: Mengzhu
+    orcid: https://orcid.org/0009-0000-4342-6835
+version: 1.0.0
+doi: 10.5281/zenodo.18176124
+date-released: 2026-01-07
+license: Apache-2.0
