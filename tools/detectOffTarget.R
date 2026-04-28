@@ -13,7 +13,7 @@ name <- as.character(args[4])
 mm <- 8
 if(length(args) > 2){mm <- as.integer(args[3])}
 
-.libPaths(c( .libPaths(), "/home/hulab/chen/R/x86_64-pc-linux-gnu-library/3.5") )
+# .libPaths(c( .libPaths(), "/home/hulab/chen/R/x86_64-pc-linux-gnu-library/3.5") )
 library(Biostrings)
 library(BSgenome)
 library(GenomicRanges)
